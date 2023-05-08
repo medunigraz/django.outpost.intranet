@@ -101,7 +101,7 @@ class Migration(migrations.Migration):
                 array_to_string(xpath('/blog/nvarchar1/text()', xmlelement(name blog, b.xmldata)), '') AS title,
                 html_unescape(array_to_string(xpath('/blog/ntext2/text()', xmlelement(name blog, b.xmldata)), '')) AS body,
                 array_to_string(xpath('/blog/nvarchar6/text()', xmlelement(name blog, b.xmldata)), '') AS author,
-                string_to_array(array_to_string(xpath('/blog/nvarchar3/text()', xmlelement(name blog, b.xmldata)), ''), ';') AS target,
+                regexp_split_to_array(array_to_string(xpath('/blog/nvarchar3/text()', xmlelement(name blog, b.xmldata)), ''), '\s*;\s*') AS target,
                 array_to_string(xpath('/blog/ntext4/text()', xmlelement(name blog, b.xmldata)), '') AS image
             FROM "intranet"."blogs" b
             WITH DATA;
@@ -123,7 +123,7 @@ class Migration(migrations.Migration):
                 html_unescape(array_to_string(xpath('/news/ntext3/text()', xmlelement(name news, n.xmldata)), '')) AS body,
                 array_to_string(xpath('/news/ntext5/text()', xmlelement(name news, n.xmldata)), '') AS image,
                 NULLIF(array_to_string(xpath('/news/ntext6/text()', xmlelement(name news, n.xmldata)), ''), '')::jsonb AS "json",
-                string_to_array(array_to_string(xpath('/news/nvarchar5/text()', xmlelement(name news, n.xmldata)), ''), ';') AS target
+                regexp_split_to_array(array_to_string(xpath('/news/nvarchar5/text()', xmlelement(name news, n.xmldata)), ''), '\s*;\s*') AS target
             FROM "intranet"."news" "n"
             WITH DATA;
             """.format(
@@ -145,7 +145,7 @@ class Migration(migrations.Migration):
                 m.description AS body,
                 (SELECT array_agg(trim(t.e)) from (SELECT unnest(string_to_array(m.keyword, ';')) e) t) AS keywords,
                 (SELECT array_agg(trim(t.e)) from (SELECT unnest(string_to_array(m.distributionmembers, ';')) e) t) AS members,
-                (SELECT array_agg(trim(t.e)) from (SELECT unnest(string_to_array(m.visiblefor, ';')) e) t) AS target,
+                (SELECT array_agg(trim(t.e)) from (SELECT unnest(regexp_split_to_array(m.visiblefor, '\s*;\s*')) e) t) AS target,
                 m.headerimage AS image
             FROM "intranet"."mailings" "m"
             WHERE
