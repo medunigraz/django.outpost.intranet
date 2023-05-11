@@ -24,7 +24,7 @@ class FeedCache:
 
     def get_cache_key(self, *args, **kwargs):
         return "%s-%s" % (
-            self.__class__.__module__,
+            self.__class__.__name__,
             "/".join(["%s,%s" % (key, val) for key, val in kwargs.items()]),
         )
 
