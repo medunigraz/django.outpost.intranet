@@ -75,6 +75,7 @@ class Migration(migrations.Migration):
                 begin timestamp NULL,
                 units varchar NULL,
                 visiblefor varchar NULL,
+                type integer NULL,
                 headerimage bytea NULL,
                 headerimagename varchar NULL
             )
@@ -149,7 +150,8 @@ class Migration(migrations.Migration):
                 m.headerimage AS image
             FROM "intranet"."mailings" "m"
             WHERE
-                m.published IS TRUE
+                m.published IS TRUE AND
+                m.type = 0
             WITH DATA;
             """.format(
                 tz=settings.TIME_ZONE
