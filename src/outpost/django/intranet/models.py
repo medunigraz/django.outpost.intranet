@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from memoize import memoize
 from PIL import (
     Image,
+    ImageOps,
     UnidentifiedImageError,
 )
 from purl import URL
@@ -54,7 +55,7 @@ class Blog(models.Model):
                     url.as_string(), auth=settings.INTRANET_SHAREPOINT_AUTH
                 ) as resp:
                     resp.raise_for_status()
-                    return Image.open(BytesIO(resp.content))
+                    return ImageOps.exif_transpose(Image.open(BytesIO(resp.content)))
             except requests.RequestException:
                 pass
             except UnidentifiedImageError:
@@ -101,7 +102,7 @@ class News(models.Model):
                     url.as_string(), auth=settings.INTRANET_SHAREPOINT_AUTH
                 ) as resp:
                     resp.raise_for_status()
-                    return Image.open(BytesIO(resp.content))
+                    return ImageOps.exif_transpose(Image.open(BytesIO(resp.content)))
             except requests.RequestException:
                 pass
             except UnidentifiedImageError:
@@ -149,7 +150,7 @@ class Mailing(models.Model):
     def get_image(self):
         if self.image:
             try:
-                return Image.open(BytesIO(self.image))
+                return ImageOps.exif_transpose(Image.open(BytesIO(self.image)))
             except UnidentifiedImageError:
                 pass
 
